@@ -8,7 +8,47 @@ from vedo import *
 def forward_kinematics(Phi, L1, L2, L3, L4):
     # Function implementation goes here
 
+    r1 = 0.4
+
+
+    # get 1
+
+    R_01 = RotationMatrix(Phi[0], axis_name = 'z')   # Rotation matrix
+    p1   = np.array([[3],[2], [0.0]])              # Frame's origin (w.r.t. previous frame)
+    t_01 = p1                                      # Translation vector
     
+    T_01 = getLocalFrameMatrix(R_01, t_01)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
+    # get 2
+
+
+    R_12 = RotationMatrix(Phi[1], axis_name = 'z')   # Rotation matrix
+    p2   = np.array([[L1+2*r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
+    t_12 = p2                                      # Translation vector
+    
+    # Matrix of Frame 2 w.r.t. Frame 1 
+    T_12 = getLocalFrameMatrix(R_12, t_12)
+    
+    # Matrix of Frame 2 w.r.t. Frame 0 (i.e., the world frame)
+    T_02 = T_01 @ T_12
+
+
+
+
+    # get 3
+
+
+    R_23 = RotationMatrix(Phi[2], axis_name = 'z')   # Rotation matrix
+    p3   = np.array([[L2 + 2* r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
+    t_23 = p3                                      # Translation vector
+    
+    # Matrix of Frame 3 w.r.t. Frame 2 
+    T_23 = getLocalFrameMatrix(R_23, t_23)
+    
+    # Matrix of Frame 3 w.r.t. Frame 0 (i.e., the world frame)
+    T_03 = T_01 @ T_12 @ T_23
+
+    # get 4    
+
     R_34 = RotationMatrix(Phi[3], axis_name = 'z')   # Rotation matrix
     p4   = np.array([[L4],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
     t_34 = p4                                      # Translation vector
@@ -17,6 +57,15 @@ def forward_kinematics(Phi, L1, L2, L3, L4):
     T_04 = T_01 @ T_12 @ T_23 @ T_34  # e is 3x1 nd.array of 3-D coordinates, the last column, without the 1
 
     e = T_04[0:3, -1]
+    print(f"Calculated: {e}")
+    expected = np.array([18.47772028,  4.71432837,  0. ])
+
+    print(f"Excpected: {expected}")
+
+    print(f"type of e is: {type(e)}, and the type of expected is: {type(expected)}")
+
+    # print(f"Calculated: {e} != Expected: {expected}")
+
     return T_01, T_02, T_03, T_04, e
 
 
@@ -165,9 +214,6 @@ def render(phi1, phi2, phi3, phi4):
         """
 
 
-        # I think i need the joint angles to actually calculate the proper position of the spheres, but I'll fix that after the transformations
-
-
         # Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
         R_01 = RotationMatrix(phi1, axis_name = 'z')   # Rotation matrix
         p1   = np.array([[3],[2], [0.0]])              # Frame's origin (w.r.t. previous frame)
@@ -278,6 +324,11 @@ def render(phi1, phi2, phi3, phi4):
         show([Frame1, Frame2, Frame3], axes, viewup="z").close()
 
 if __name__ == '__main__':
-    render(30, -20, 30, 0)
+
+    L1, L2, L3, L4 = [5, 8, 3, 0]
+    Phi = np.array([-30, 50, 30, 0])
+    forward_kinematics(Phi, L1, L2, L3, L4)
+
+    # render(30, -20, 30, 0)
     time.sleep(0.5)
-    render(-15, -20, 30, 0)
+    # render(-15, -20, 30, 0)
