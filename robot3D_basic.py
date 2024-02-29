@@ -318,7 +318,7 @@ if __name__ == '__main__':
     phi4 = 0
 
     render(phi1, phi2, phi3, phi4)
-    for i in range(0, 3):
+    for i in range(0, 10):
 
         # Update phi's
         phi1 +=12
