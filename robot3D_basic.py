@@ -4,6 +4,9 @@
 import time
 from vedo import *
 
+plot = Plotter()
+
+axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
 
 def forward_kinematics(Phi, L1, L2, L3, L4):
     # Function implementation goes here
@@ -56,7 +59,9 @@ def forward_kinematics(Phi, L1, L2, L3, L4):
     T_34 = getLocalFrameMatrix(R_34, t_34)
     T_04 = T_01 @ T_12 @ T_23 @ T_34  # e is 3x1 nd.array of 3-D coordinates, the last column, without the 1
 
-    e = T_04[0:3, -1]
+    # print(T_04)
+    e = T_04[0:3, -1] # Slicing is correct, math is not
+
     print(f"Calculated: {e}")
     expected = np.array([18.47772028,  4.71432837,  0. ])
 
@@ -169,29 +174,6 @@ def getLocalFrameMatrix(R_ij, t_ij):
     
     return T_ij
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def render(phi1, phi2, phi3, phi4):
 
@@ -320,8 +302,7 @@ def render(phi1, phi2, phi3, phi4):
 
         Frame4.apply_transform(T_04)  
         # Show everything 
-        #show([Frame1, Frame2, Frame3], axes, viewup="z").close()
-        show([Frame1, Frame2, Frame3], axes, viewup="z").close()
+        show([Frame1, Frame2, Frame3], axes, viewup="z").close()#interactive()
 
 if __name__ == '__main__':
 
@@ -329,6 +310,21 @@ if __name__ == '__main__':
     Phi = np.array([-30, 50, 30, 0])
     forward_kinematics(Phi, L1, L2, L3, L4)
 
-    # render(30, -20, 30, 0)
-    time.sleep(0.5)
-    # render(-15, -20, 30, 0)
+    # Do the rendering
+ 
+    phi1 = 30       # Rotation angle of part 1 in degrees
+    phi2 = -20      # Rotation angle of part 2 in degrees
+    phi3 = 30       # Rotation angle of the end-effector in degrees
+    phi4 = 0
+
+    render(phi1, phi2, phi3, phi4)
+    for i in range(0, 3):
+
+        # Update phi's
+        phi1 +=12
+        phi2 -=14
+        phi3 += 18
+
+        render(phi1, phi2, phi3, phi4)
+        time.sleep(0.2)
+
