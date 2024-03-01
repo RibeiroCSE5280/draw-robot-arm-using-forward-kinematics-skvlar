@@ -23,6 +23,9 @@ def forward_kinematics(Phi, L1, L2, L3, L4):
     T_01 = getLocalFrameMatrix(R_01, t_01)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
     # get 2
 
+    print("T_01: ")
+    print(T_01)
+
 
     R_12 = RotationMatrix(Phi[1], axis_name = 'z')   # Rotation matrix
     p2   = np.array([[L1+2*r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
@@ -34,6 +37,8 @@ def forward_kinematics(Phi, L1, L2, L3, L4):
     # Matrix of Frame 2 w.r.t. Frame 0 (i.e., the world frame)
     T_02 = T_01 @ T_12
 
+    print("T_02: ")
+    print(T_02)
 
 
 
@@ -50,14 +55,23 @@ def forward_kinematics(Phi, L1, L2, L3, L4):
     # Matrix of Frame 3 w.r.t. Frame 0 (i.e., the world frame)
     T_03 = T_01 @ T_12 @ T_23
 
+ 
+    print("T_03: ")
+    print(T_03)
+
+
     # get 4    
 
     R_34 = RotationMatrix(Phi[3], axis_name = 'z')   # Rotation matrix
-    p4   = np.array([[L4],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
+    p4   = np.array([[L3+r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
     t_34 = p4                                      # Translation vector
 
     T_34 = getLocalFrameMatrix(R_34, t_34)
     T_04 = T_01 @ T_12 @ T_23 @ T_34  # e is 3x1 nd.array of 3-D coordinates, the last column, without the 1
+
+
+    print("T_04: ")
+    print(T_04)
 
     # print(T_04)
     e = T_04[0:3, -1] # Slicing is correct, math is not
@@ -185,7 +199,7 @@ def render(phi1, phi2, phi3, phi4):
         L1 = 5   # Length of link 1
         L2 = 8   # Length of link 2
         L3 = 3   # Length of link 3
-        L4 = 0   # Length of link 3
+        L4 = 0   # Length of link 4
 
         # Joint angles
         """
@@ -290,19 +304,21 @@ def render(phi1, phi2, phi3, phi4):
         Frame3 = Frame3Arrows + link3_mesh + sphere3
         Frame3.apply_transform(T_03)  
 
-        Frame4 = createCoordinateFrameMesh()
 
         # t_34
         R_34 = RotationMatrix(phi4, axis_name = 'z')   # Rotation matrix
-        p4   = np.array([[L4],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
+        p4   = np.array([[L3+r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
         t_34 = p4                                      # Translation vector
 
         T_34 = getLocalFrameMatrix(R_34, t_34)
         T_04 = T_01 @ T_12 @ T_23 @ T_34  # e is 3x1 nd.array of 3-D coordinates, the last column, without the 1
 
+
+        Frame4 = createCoordinateFrameMesh()
+
         Frame4.apply_transform(T_04)  
         # Show everything 
-        show([Frame1, Frame2, Frame3], axes, viewup="z").close()#interactive()
+        show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()#interactive()
 
 if __name__ == '__main__':
 
@@ -310,21 +326,25 @@ if __name__ == '__main__':
     Phi = np.array([-30, 50, 30, 0])
     forward_kinematics(Phi, L1, L2, L3, L4)
 
-    # Do the rendering
+
+    render(Phi[0], Phi[1], Phi[2], Phi[3])
+
+
+    # # Do the rendering
  
-    phi1 = 30       # Rotation angle of part 1 in degrees
-    phi2 = -20      # Rotation angle of part 2 in degrees
-    phi3 = 30       # Rotation angle of the end-effector in degrees
-    phi4 = 0
+    # phi1 = 30       # Rotation angle of part 1 in degrees
+    # phi2 = -20      # Rotation angle of part 2 in degrees
+    # phi3 = 30       # Rotation angle of the end-effector in degrees
+    # phi4 = 0
 
-    render(phi1, phi2, phi3, phi4)
-    for i in range(0, 10):
+    # render(phi1, phi2, phi3, phi4)
+    # for i in range(0, 10):
 
-        # Update phi's
-        phi1 +=12
-        phi2 -=14
-        phi3 += 18
+    #     # Update phi's
+    #     phi1 +=12
+    #     phi2 -=14
+    #     phi3 += 18
 
-        render(phi1, phi2, phi3, phi4)
-        time.sleep(0.2)
+    #     render(phi1, phi2, phi3, phi4)
+    #     time.sleep(0.2)
 
