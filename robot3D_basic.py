@@ -191,9 +191,11 @@ def getLocalFrameMatrix(R_ij, t_ij):
 
 def render(phi1, phi2, phi3, phi4):
 
-         
+        video = Video('robot3d.gif', fps=10)
+        
         # Set the limits of the graph x, y, and z ranges 
         axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
+        plt = Plotter(interactive=False, bg="black", axes=axes, size=(800, 800))
 
         # Lengths of arm parts 
         L1 = 5   # Length of link 1
@@ -209,117 +211,140 @@ def render(phi1, phi2, phi3, phi4):
         phi4 = 0
         """
 
+        filename = 'images/frame'
+        frames = 0
 
-        # Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
-        R_01 = RotationMatrix(phi1, axis_name = 'z')   # Rotation matrix
-        p1   = np.array([[3],[2], [0.0]])              # Frame's origin (w.r.t. previous frame)
-        t_01 = p1                                      # Translation vector
-        
-        T_01 = getLocalFrameMatrix(R_01, t_01)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
-        
-        # Create the coordinate frame mesh and transform
-        Frame1Arrows = createCoordinateFrameMesh()
-        
-        # Also create a sphere to show as an example of a joint
-        r1 = 0.4
+        for i in range (0, 150):
+            # Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
+            R_01 = RotationMatrix(phi1, axis_name = 'z')   # Rotation matrix
+            p1   = np.array([[3],[2], [0.0]])              # Frame's origin (w.r.t. previous frame)
+            t_01 = p1                                      # Translation vector
+            
+            T_01 = getLocalFrameMatrix(R_01, t_01)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
+            
+            # Create the coordinate frame mesh and transform
+            Frame1Arrows = createCoordinateFrameMesh()
+            
+            # Also create a sphere to show as an example of a joint
+            r1 = 0.4
 
-        # Now, let's create a cylinder and add it to the local coordinate frame
-        link1_mesh = Cylinder(r=0.4, 
-                          height=L1, 
-                          pos = (r1 + L1/2,0,0),
-                          c="white", 
-                          alpha=.8, 
-                          axis=(1,0,0)
-                          )
-        
+            # Now, let's create a cylinder and add it to the local coordinate frame
+            link1_mesh = Cylinder(r=0.4, 
+                              height=L1, 
+                              pos = (r1 + L1/2,0,0),
+                              c="white", 
+                              alpha=.8, 
+                              axis=(1,0,0)
+                              )
+            
 
-        sphere1 = Sphere(r=r1).color("blue").alpha(.8)
+            sphere1 = Sphere(r=r1).color("blue").alpha(.8)
 
-        # x y z
+            # x y z
 
-        # Combine all parts into a single object 
-        Frame1 = Frame1Arrows + link1_mesh + sphere1
+            # Combine all parts into a single object 
+            Frame1 = Frame1Arrows + link1_mesh + sphere1
 
-        # Transform the part to position it at its correct location and orientation 
-        Frame1.apply_transform(T_01)  
-        
-        
-        # Matrix of Frame 2 (written w.r.t. Frame 1, which is the previous frame)     
-        R_12 = RotationMatrix(phi2, axis_name = 'z')   # Rotation matrix
-        p2   = np.array([[L1+2*r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
-        t_12 = p2                                      # Translation vector
-        
-        # Matrix of Frame 2 w.r.t. Frame 1 
-        T_12 = getLocalFrameMatrix(R_12, t_12)
-        
-        # Matrix of Frame 2 w.r.t. Frame 0 (i.e., the world frame)
-        T_02 = T_01 @ T_12
-        
-        # Create the coordinate frame mesh and transform
-        Frame2Arrows = createCoordinateFrameMesh()
-        
-        # Now, let's create a cylinder and add it to the local coordinate frame
-        link2_mesh = Cylinder(r=0.4, 
-                          height=L2, 
-                          pos = (r1 + L2/2,0,0),
-                          c="white", 
-                          alpha=.8, 
-                          axis=(1,0,0)
-                          )
-
-        # Combine all parts into a single object 
-        sphere2 = Sphere(r=r1).color("blue").alpha(.8)
-
-        Frame2 = Frame2Arrows + link2_mesh + sphere2
-        
-        # Transform the part to position it at its correct location and orientation 
-        Frame2.apply_transform(T_02)  
-
+            # Transform the part to position it at its correct location and orientation 
+            Frame1.apply_transform(T_01)  
             
             
-        # Matrix of Frame 3 (written w.r.t. Frame 2, which is the previous frame)     
-        R_23 = RotationMatrix(phi3, axis_name = 'z')   # Rotation matrix
-        p3   = np.array([[L2 + 2* r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
-        t_23 = p3                                      # Translation vector
-        
-        # Matrix of Frame 3 w.r.t. Frame 2 
-        T_23 = getLocalFrameMatrix(R_23, t_23)
-        
-        # Matrix of Frame 3 w.r.t. Frame 0 (i.e., the world frame)
-        T_03 = T_01 @ T_12 @ T_23
-        
-        # Create the coordinate frame mesh and transform. This point is the end-effector.
-        Frame3Arrows = createCoordinateFrameMesh()
+            # Matrix of Frame 2 (written w.r.t. Frame 1, which is the previous frame)     
+            R_12 = RotationMatrix(phi2, axis_name = 'z')   # Rotation matrix
+            p2   = np.array([[L1+2*r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
+            t_12 = p2                                      # Translation vector
+            
+            # Matrix of Frame 2 w.r.t. Frame 1 
+            T_12 = getLocalFrameMatrix(R_12, t_12)
+            
+            # Matrix of Frame 2 w.r.t. Frame 0 (i.e., the world frame)
+            T_02 = T_01 @ T_12
+            
+            # Create the coordinate frame mesh and transform
+            Frame2Arrows = createCoordinateFrameMesh()
+            
+            # Now, let's create a cylinder and add it to the local coordinate frame
+            link2_mesh = Cylinder(r=0.4, 
+                              height=L2, 
+                              pos = (r1 + L2/2,0,0),
+                              c="white", 
+                              alpha=.8, 
+                              axis=(1,0,0)
+                              )
 
-        sphere3 = Sphere(r=r1).color("blue").alpha(.8)
-        link3_mesh = Cylinder(r=0.4, 
-                          height=L3, 
-                          pos = (r1 + L3/2,  0,0),
-                          c="white", 
-                          alpha=.8, 
-                          axis=(1,0,0)
-                          )
+            # Combine all parts into a single object 
+            sphere2 = Sphere(r=r1).color("blue").alpha(.8)
 
-        # Transform the part to position it at its correct location and orientation 
-        Frame3 = Frame3Arrows + link3_mesh + sphere3
-        Frame3.apply_transform(T_03)  
+            Frame2 = Frame2Arrows + link2_mesh + sphere2
+            
+            # Transform the part to position it at its correct location and orientation 
+            Frame2.apply_transform(T_02)  
+
+                
+                
+            # Matrix of Frame 3 (written w.r.t. Frame 2, which is the previous frame)     
+            R_23 = RotationMatrix(phi3, axis_name = 'z')   # Rotation matrix
+            p3   = np.array([[L2 + 2* r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
+            t_23 = p3                                      # Translation vector
+            
+            # Matrix of Frame 3 w.r.t. Frame 2 
+            T_23 = getLocalFrameMatrix(R_23, t_23)
+            
+            # Matrix of Frame 3 w.r.t. Frame 0 (i.e., the world frame)
+            T_03 = T_01 @ T_12 @ T_23
+            
+            # Create the coordinate frame mesh and transform. This point is the end-effector.
+            Frame3Arrows = createCoordinateFrameMesh()
+
+            sphere3 = Sphere(r=r1).color("blue").alpha(.8)
+            link3_mesh = Cylinder(r=0.4, 
+                              height=L3, 
+                              pos = (r1 + L3/2,  0,0),
+                              c="white", 
+                              alpha=.8, 
+                              axis=(1,0,0)
+                              )
+
+            # Transform the part to position it at its correct location and orientation 
+            Frame3 = Frame3Arrows + link3_mesh + sphere3
+            Frame3.apply_transform(T_03)  
 
 
-        # t_34
-        R_34 = RotationMatrix(phi4, axis_name = 'z')   # Rotation matrix
-        p4   = np.array([[L3+r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
-        t_34 = p4                                      # Translation vector
+            # t_34
+            R_34 = RotationMatrix(phi4, axis_name = 'z')   # Rotation matrix
+            p4   = np.array([[L3+r1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
+            t_34 = p4                                      # Translation vector
 
-        T_34 = getLocalFrameMatrix(R_34, t_34)
-        T_04 = T_01 @ T_12 @ T_23 @ T_34  # e is 3x1 nd.array of 3-D coordinates, the last column, without the 1
+            T_34 = getLocalFrameMatrix(R_34, t_34)
+            T_04 = T_01 @ T_12 @ T_23 @ T_34  # e is 3x1 nd.array of 3-D coordinates, the last column, without the 1
 
 
-        Frame4 = createCoordinateFrameMesh()
+            Frame4 = createCoordinateFrameMesh()
 
-        Frame4.apply_transform(T_04)  
-        # Show everything 
-        show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()#interactive()
+            Frame4.apply_transform(T_04)  
+            # Show everything 
+            #show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()#interactive()
 
+            plt.add(Frame1, Frame2, Frame3, Frame4)
+
+            plt.show([Frame1, Frame2, Frame3], viewup="z")
+            plt.render()
+
+            # Maybe take screenshot?
+            frames += 1
+            filename = 'images/frame' + str(frames)
+            plt.screenshot(filename)
+
+
+            plt.remove(Frame1, Frame2, Frame3, Frame4)
+            # Update phis
+            phi1 += 12
+            phi2 -= 20
+            phi3 += 16
+            phi4 -= 20
+
+
+        video.close()
 if __name__ == '__main__':
 
     L1, L2, L3, L4 = [5, 8, 3, 0]
